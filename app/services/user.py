@@ -3,6 +3,7 @@ from typing import List, Optional, TypeVar, Union
 from app.infra.postgres.crud.base import CRUDBase, crud
 from app.schemas.user import User, CreateUser, UpdateUser
 from app.infra.postgres.crud.user import user
+from app.utils.upload import upload_file
 
 
 QueryType = TypeVar("QueryType", bound=CRUDBase)
@@ -49,6 +50,10 @@ class UserService:
     async def delete(self, *, id: int) -> Union[dict, None]:
         user_deleted = await self.__user_query.delete(id=id)
         return user_deleted
+
+    async def upload_file(self) -> dict:
+        response = upload_file()
+        return response
 
 
 user_service = UserService(user_query = user)
