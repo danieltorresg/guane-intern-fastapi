@@ -1,7 +1,8 @@
 from typing import List, Optional, TypeVar, Union
 
 from app.infra.postgres.crud.base import CRUDBase, crud
-from app.schemas.user import BaseUser, User, CreateUser, UpdateUser
+from app.schemas.user import User, CreateUser, UpdateUser
+from app.infra.postgres.crud.user import user
 
 
 QueryType = TypeVar("QueryType", bound=CRUDBase)
@@ -50,4 +51,4 @@ class UserService:
         return user_deleted
 
 
-user_service = UserService(user_query = crud)
+user_service = UserService(user_query = user)
