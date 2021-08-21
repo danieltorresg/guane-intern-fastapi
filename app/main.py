@@ -1,10 +1,41 @@
+import logging
+
 from fastapi import FastAPI
 
-app = FastAPI()
+from app.api.api import api_router
+from app.services.db import init_db
+from app.core.config import Settings, get_settings
 
 
-@app.get('/')
-def read_root():
-    return {
-        "welcome":"My app"
-    }
+log = logging.getLogger("uvicorn.info")
+
+
+settings: Settings = get_settings()
+
+
+def create_application() -> FastAPI:
+    application = FastAPI(
+            title=settings.WEB_APP_TITLE,
+            description=settings.WEB_APP_DESCRIPTION,
+            version=settings.WEB_APP_VERSION
+        )
+    application.include_router(api_router, prefix="/api/v1")
+    return application
+
+
+app = create_application()
+
+@app.get("/")
+def index():
+    return {"detail": "index guane app"}
+
+
+@app.on_event("startup")
+async def startup_event():
+    init_db(app)
+    log.info("Starting up...")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    log.info("Shutting down...")
