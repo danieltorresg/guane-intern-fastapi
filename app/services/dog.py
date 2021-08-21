@@ -2,6 +2,7 @@ from typing import List, Optional, TypeVar, Union
 
 from app.infra.postgres.crud.base import CRUDBase, crud
 from app.schemas.dog import BaseDog, Dog, CreateDog, UpdateDog
+from app.infra.postgres.crud.dog import dog
 from app.utils.picture import generate_picture
 
 
@@ -52,4 +53,4 @@ class DogService:
         return dog_deleted
         
 
-dog_service = DogService(dog_query = crud)
+dog_service = DogService(dog_query = dog)
