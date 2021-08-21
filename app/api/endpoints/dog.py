@@ -1,8 +1,10 @@
 from typing import List, Optional, Union
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
 from app.schemas.dog import BaseDog, UpdateDog, Dog
+from app.infra.postgres.models.user import User
 from app.services.dog import dog_service
+from app.api import deps
 
 router = APIRouter()
 
@@ -67,6 +69,7 @@ async def create_by_name(
         *,
         dog_in: BaseDog,
         name: str,
+        current_user: User = Depends(deps.get_current_active_user)
     ) -> Optional [Dog]:
     dog = await dog_service.create_by_name(dog=dog_in, name=name)
     if dog:
@@ -103,5 +106,3 @@ async def delete_by_name(*, name: str) -> Optional [Dog]:
     if dog:
         return dog
     return None
-
-
