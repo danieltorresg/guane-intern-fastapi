@@ -2,6 +2,7 @@ import logging
 
 from fastapi import FastAPI
 
+from app.api.api import api_router
 from app.services.db import init_db
 from app.core.config import Settings, get_settings
 
@@ -18,6 +19,7 @@ def create_application() -> FastAPI:
             description=settings.WEB_APP_DESCRIPTION,
             version=settings.WEB_APP_VERSION
         )
+    application.include_router(api_router, prefix="/api/v1")
     return application
 
 
