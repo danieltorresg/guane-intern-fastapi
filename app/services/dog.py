@@ -2,7 +2,9 @@ from typing import List, Optional, TypeVar, Union
 
 from app.infra.postgres.crud.base import CRUDBase, crud
 from app.schemas.dog import BaseDog, Dog, CreateDog, UpdateDog
+from app.infra.postgres.crud.dog import dog
 from app.utils.picture import generate_picture
+from app.infra.postgres.models.user import User
 
 
 QueryType = TypeVar("QueryType", bound=CRUDBase)
@@ -16,9 +18,9 @@ class DogService:
         return dogs
 
 
-    async def create_by_name(self, *, dog: BaseDog, name: str) -> Union[dict, None]:
+    async def create_by_name(self, *, dog: BaseDog, name: str, in_charge: User) -> Union[dict, None]:
         picture_url = generate_picture()
-        dog_in = CreateDog(id=dog.id, name=name, picture=picture_url, owner_id=dog.owner_id)
+        dog_in = CreateDog(id=dog.id, name=name, picture=picture_url, owner_id=dog.owner_id, in_charge_id=in_charge["id"])
         new_dog_id = await self.__dog_query.create(obj_in=dog_in)
         return new_dog_id
 
@@ -52,4 +54,4 @@ class DogService:
         return dog_deleted
         
 
-dog_service = DogService(dog_query = crud)
+dog_service = DogService(dog_query = dog)

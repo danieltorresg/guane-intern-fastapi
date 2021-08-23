@@ -11,6 +11,7 @@ class BaseDog(BaseModel):
 class CreateDog(BaseDog):
     name: str
     picture: str
+    in_charge_id: int
 
 class UpdateDog(BaseModel):
     picture: Optional[str]
