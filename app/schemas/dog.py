@@ -1,22 +1,30 @@
 from datetime import datetime
+from os import name
 from typing import Optional
 
 from pydantic import BaseModel
+from pydantic.networks import EmailStr
 
 
 class BaseDog(BaseModel):
     id: int
-    owner_id: Optional[int]
+    owner_email: Optional[EmailStr]
 
-class CreateDog(BaseDog):
+class CreateDog(BaseModel):
+    id: int
     name: str
     picture: str
-    in_charge_id: int
+    in_charge_id: Optional[int]
+    owner_id: Optional[int]
 
 class UpdateDog(BaseModel):
+    name: Optional[str]
     picture: Optional[str]
-    is_adopted: Optional[bool]
-    owner_id: Optional[int]
+
+class AdoptDog(BaseModel):
+    owner_id: int
+    is_adopted: bool
+    in_charge_id: Optional[int]
 
 
 class DogInDB(CreateDog):
