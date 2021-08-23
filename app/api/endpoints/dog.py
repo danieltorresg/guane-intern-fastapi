@@ -1,8 +1,8 @@
 from typing import List, Optional, Union
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.schemas.dog import BaseDog, UpdateDog, Dog
-from app.infra.postgres.models.user import User
+from app.schemas.dog import BaseDog, UpdateDog, AdoptDog, Dog
+from app.schemas.user import User
 from app.services.dog import dog_service
 from app.api import deps
 
@@ -39,6 +39,27 @@ async def get_is_adopted() ->  Optional [List[Dog]]:
         return dog
     raise HTTPException(status_code=404, detail="Dogs adopted not found")
 
+    
+@router.post(
+    "/adopt/{name}",
+    response_model=Union[Dog, None],
+    status_code=200,
+    responses={
+        200: {"description": "Dog adopted"},
+        401: {"description": "User unauthorized"},
+    },
+)
+async def adopt(
+        *, 
+        owner_email: str, 
+        name: str,
+        current_user: User = Depends(deps.get_current_active_user),
+    ) ->  Optional [List[Dog]]:
+    dog = await dog_service.adopt(owner_email= owner_email, name=name, current_user=current_user)
+    if dog:
+        return dog
+    raise HTTPException(status_code=404, detail="Dogs adopted not found")
+
 
 @router.get(
     "/{name}",
@@ -69,7 +90,7 @@ async def create_by_name(
         *,
         dog_in: BaseDog,
         name: str,
-        current_user: User = Depends(deps.get_current_active_user)
+        current_user: User = Depends(deps.get_current_active_user),
     ) -> Optional [Dog]:
     dog = await dog_service.create_by_name(dog=dog_in, name=name, in_charge=current_user)
     if dog:
@@ -86,8 +107,13 @@ async def create_by_name(
         401: {"description": "User unauthorized"},
     },
 )
-async def update_by_name(*, dog_in: UpdateDog, name: str) -> Optional [Dog]:
-    dog = await dog_service.update_by_name(updated_dog= dog_in, name=name)
+async def update_by_name(
+        *, 
+        dog_in: UpdateDog, 
+        name: str,        
+        current_user: User = Depends(deps.get_current_active_user)
+    ) -> Optional [Dog]:
+    dog = await dog_service.update_by_name(updated_dog= dog_in, name=name, current_user=current_user)
     if dog:
         return dog
     return None
