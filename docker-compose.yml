@@ -25,6 +25,8 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
+    depends_on: 
+      - doggys-db
     image: doggys_service
     container_name: doggys_service_container
     ports:

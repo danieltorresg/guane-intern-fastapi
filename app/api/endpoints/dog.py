@@ -71,7 +71,7 @@ async def create_by_name(
         name: str,
         current_user: User = Depends(deps.get_current_active_user)
     ) -> Optional [Dog]:
-    dog = await dog_service.create_by_name(dog=dog_in, name=name)
+    dog = await dog_service.create_by_name(dog=dog_in, name=name, in_charge=current_user)
     if dog:
         return dog
     return None

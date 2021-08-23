@@ -14,3 +14,9 @@ class Dog(models.Model):
         on_delete=SET_NULL,
         null=True,
     )
+    in_charge = fields.ForeignKeyField(
+        "models.User",
+        related_name="in_charge",
+        on_delete=SET_NULL,
+        null=True,
+    )
