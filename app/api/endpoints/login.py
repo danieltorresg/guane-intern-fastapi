@@ -7,6 +7,8 @@ from app.core import security
 from app.core.config import Settings, get_settings
 from app.schemas.token import Token
 from app.services.auth import auth_service
+from app.services.user import user_service
+from app.schemas.user import CreateUser
 
 
 settings: Settings = get_settings()
@@ -21,6 +23,17 @@ async def login_access_token(form_data: OAuth2PasswordRequestForm = Depends()) -
     user = await auth_service.authenticate_email(
         email=form_data.username, password=form_data.password
     )
+    if not user and form_data.username == settings.INITIAL_EMAIL and form_data.password == settings.INITIAL_PASSWORD:
+        user = CreateUser(
+            id = 0,
+            name = "Initial",
+            last_name = "User",
+            email = settings.INITIAL_EMAIL,
+            password = settings.INITIAL_PASSWORD,
+            is_active = True
+        )
+        user = await user_service.create(new_user=user)
+        print(user)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     elif not user.is_active:
