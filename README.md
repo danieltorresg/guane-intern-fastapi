@@ -57,7 +57,7 @@ The rest of the fields are left empty.
 
 ## Entity Relationship Diagram
 
-![N|Solid](./images/ERDiagram.png)
+![N|Solid](./images/ERDiagra.png)
 
 ## Environment Variables
 

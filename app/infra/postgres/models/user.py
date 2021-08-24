@@ -1,8 +1,6 @@
 from requests.sessions import default_hooks
 from tortoise import fields, models
 
-#from app.infra.postgres.models.user import User
-
 
 class User(models.Model):
     id = fields.IntField(pk=True)
