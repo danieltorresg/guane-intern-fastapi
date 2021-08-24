@@ -13,7 +13,7 @@ class CRUDDog(CRUDBase[Dog, CreateDog, UpdateDog]):
         dog_data = obj_in.dict()
         if await self.get_by_element(name=dog_data["name"]):
             raise HTTPException(status_code=409, detail="Duplicate key: There is a dog with the same name")
-        if (dog_data["owner_id"] ):
+        if (type(dog_data["owner_id"]) == int):
             if not await user_service.get_one_by_id(id=dog_data["owner_id"]):
                 raise HTTPException(status_code=409, detail="User not found: Invalid user id")            
             dog_data["is_adopted"] = True
