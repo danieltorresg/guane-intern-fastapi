@@ -1,5 +1,5 @@
 from app.infra.postgres.models.user import User
-from fastapi import Header, HTTPException, Security, status
+from fastapi import HTTPException, Security, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError

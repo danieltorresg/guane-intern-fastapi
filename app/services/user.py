@@ -1,4 +1,5 @@
 from typing import List, Optional, TypeVar, Union
+from passlib.hash import bcrypt
 
 from app.infra.postgres.crud.base import CRUDBase, crud
 from app.schemas.user import User, CreateUser, UpdateUser
@@ -18,6 +19,7 @@ class UserService:
 
     
     async def create(self, new_user: CreateUser) -> Optional[User]:
+        new_user.password = bcrypt.hash(new_user.password)
         user = await self.__user_query.create(obj_in=new_user)
         return user
 
@@ -37,6 +39,7 @@ class UserService:
 
     
     async def update(self, *, id: int, updated_user: UpdateUser) -> Union[dict, None]:
+        updated_user.password = bcrypt.hash(updated_user.password)
         user_updated = await self.__user_query.update(id=id, obj_in=updated_user)
         return user_updated
 

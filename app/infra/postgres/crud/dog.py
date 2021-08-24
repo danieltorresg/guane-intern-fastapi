@@ -3,7 +3,8 @@ from fastapi import HTTPException
 
 from app.infra.postgres.crud.base import CRUDBase
 from app.infra.postgres.models.dog import Dog
-from app.schemas.dog import UpdateDog, CreateDog
+from app.schemas.dog import AdoptDog, UpdateDog, CreateDog
+from app.schemas.user import User
 from app.services.user import user_service
 
 
@@ -12,7 +13,7 @@ class CRUDDog(CRUDBase[Dog, CreateDog, UpdateDog]):
         dog_data = obj_in.dict()
         if await self.get_by_element(name=dog_data["name"]):
             raise HTTPException(status_code=409, detail="Duplicate key: There is a dog with the same name")
-        if (dog_data["owner_id"] ):
+        if (type(dog_data["owner_id"]) == int):
             if not await user_service.get_one_by_id(id=dog_data["owner_id"]):
                 raise HTTPException(status_code=409, detail="User not found: Invalid user id")            
             dog_data["is_adopted"] = True
@@ -31,14 +32,23 @@ class CRUDDog(CRUDBase[Dog, CreateDog, UpdateDog]):
             raise HTTPException(status_code=404, detail="Dog not found: There is not a dog with this name")
             
 
-    async def update(self, *, name: str, obj_in: UpdateDog) -> Union[dict, None]:
+    async def update(
+            self, 
+            *, 
+            name: str, 
+            obj_in: Union[UpdateDog, AdoptDog],
+            current_user: User,
+        ) -> Union[dict, None]:
         dog_in_db = await self.get_by_element(name=name)
         if dog_in_db:
-            dog_updated = await self.model.filter(name=name).update(**obj_in.dict(exclude_unset=True))
-            dog_updated = await self.get_by_element(name=name)
-            return dog_updated[0]
+            if current_user["id"] == dog_in_db[0]["owner_id"] or current_user["id"] == dog_in_db[0]["in_charge_id"]:
+                dog_updated = await self.model.filter(name=name).update(**obj_in.dict(exclude_unset=True))
+                dog_updated = await self.get_by_element(id=dog_in_db[0]["id"])
+                return dog_updated[0]
+            else:
+                raise HTTPException(status_code=401, detail="User unauthorized")
         else:
             raise HTTPException(status_code=404, detail="Dog not found: There is not a dog with this name")
-
+            
 
 dog = CRUDDog(Dog)

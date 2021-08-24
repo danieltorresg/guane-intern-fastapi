@@ -1,7 +1,6 @@
 from typing import List, Optional, Union
 
 from fastapi import APIRouter, HTTPException
-from passlib.hash import bcrypt
 
 from app.schemas.user import CreateUser, UpdateUser, User
 from app.services.user import user_service
@@ -35,7 +34,6 @@ async def get_all() -> Optional [List[User]]:
     },
 )
 async def create(*, new_user: CreateUser) -> Optional [User]:
-    new_user.password = bcrypt.hash(new_user.password)
     user = await user_service.create(new_user=new_user)
     if user:
         return user

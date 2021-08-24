@@ -14,7 +14,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def create_access_token(
-    id: int, email: str
+    id: int, 
+    email: str
 ) -> str:
     payload = {"email": email, "id": id}
     encoded_jwt = jwt.encode(
