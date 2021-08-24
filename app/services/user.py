@@ -1,7 +1,10 @@
 from typing import List, Optional, TypeVar, Union
+from passlib.hash import bcrypt
 
 from app.infra.postgres.crud.base import CRUDBase, crud
-from app.schemas.user import BaseUser, User, CreateUser, UpdateUser
+from app.schemas.user import User, CreateUser, UpdateUser
+from app.infra.postgres.crud.user import user
+from app.utils.upload import upload_file
 
 
 QueryType = TypeVar("QueryType", bound=CRUDBase)
@@ -16,6 +19,7 @@ class UserService:
 
     
     async def create(self, new_user: CreateUser) -> Optional[User]:
+        new_user.password = bcrypt.hash(new_user.password)
         user = await self.__user_query.create(obj_in=new_user)
         return user
 
@@ -49,5 +53,9 @@ class UserService:
         user_deleted = await self.__user_query.delete(id=id)
         return user_deleted
 
+    async def upload_file(self) -> dict:
+        response = upload_file()
+        return response
 
-user_service = UserService(user_query = crud)
+
+user_service = UserService(user_query = user)
