@@ -39,7 +39,8 @@ class UserService:
 
     
     async def update(self, *, id: int, updated_user: UpdateUser) -> Union[dict, None]:
-        updated_user.password = bcrypt.hash(updated_user.password)
+        if updated_user.password:
+            updated_user.password = bcrypt.hash(updated_user.password)
         user_updated = await self.__user_query.update(id=id, obj_in=updated_user)
         return user_updated
 
