@@ -89,8 +89,8 @@ class DogService:
             
 
 
-    async def delete(self, *, name: str) -> Union[dict, None]:
-        dog_deleted = await self.__dog_query.delete(name=name)
+    async def delete(self, *, name: str, current_user: User) -> Union[dict, None]:
+        dog_deleted = await self.__dog_query.delete(name=name, current_user=current_user)
         return dog_deleted
         
 

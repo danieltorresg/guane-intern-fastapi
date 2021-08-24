@@ -56,22 +56,6 @@ async def upload_file() -> dict:
     return None
 
 
-@router.get(
-    "/{id}",
-    response_model=Union[User, None],
-    status_code=200,
-    responses={
-        200: {"description": "User found"},
-        401: {"description": "User unauthorized"},
-    },
-)
-async def get_by_id(*, id: int) -> Optional [User]:
-    user = await user_service.get_one_by_id(id=id)
-    if user:
-        return user
-    raise HTTPException(status_code=404, detail="User not found")
-
-
 @router.put(
     "/deactivate",
     response_model=Union[User, None],
@@ -86,6 +70,22 @@ async def deactivate(*, id: int) -> Optional [User]:
     if user:
         return user
     return None
+
+
+@router.get(
+    "/{id}",
+    response_model=Union[User, None],
+    status_code=200,
+    responses={
+        200: {"description": "User found"},
+        401: {"description": "User unauthorized"},
+    },
+)
+async def get_by_id(*, id: int) -> Optional [User]:
+    user = await user_service.get_one_by_id(id=id)
+    if user:
+        return user
+    raise HTTPException(status_code=404, detail="User not found")
 
 
 @router.put(

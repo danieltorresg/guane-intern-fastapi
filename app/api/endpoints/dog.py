@@ -40,7 +40,7 @@ async def get_is_adopted() ->  Optional [List[Dog]]:
     raise HTTPException(status_code=404, detail="Dogs adopted not found")
 
     
-@router.post(
+@router.put(
     "/adopt/{name}",
     response_model=Union[Dog, None],
     status_code=200,
@@ -58,7 +58,7 @@ async def adopt(
     dog = await dog_service.adopt(owner_email= owner_email, name=name, current_user=current_user)
     if dog:
         return dog
-    raise HTTPException(status_code=404, detail="Dogs adopted not found")
+    raise HTTPException(status_code=404, detail="Dog adopted not found")
 
 
 @router.get(
@@ -118,6 +118,7 @@ async def update_by_name(
         return dog
     return None
 
+
 @router.delete(
     "/{name}",
     response_model=Union[Dog, None],
@@ -127,8 +128,12 @@ async def update_by_name(
         401: {"description": "User unauthorized"},
     },
 )
-async def delete_by_name(*, name: str) -> Optional [Dog]:
-    dog = await dog_service.delete(name=name)
+async def delete_by_name(
+        *, 
+        name: str,        
+        current_user: User = Depends(deps.get_current_active_user)
+    ) -> Optional [Dog]:
+    dog = await dog_service.delete(name=name, current_user=current_user)
     if dog:
         return dog
     return None

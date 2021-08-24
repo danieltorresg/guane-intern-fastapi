@@ -23,10 +23,15 @@ class CRUDDog(CRUDBase[Dog, CreateDog, UpdateDog]):
         return dog
 
     
-    async def delete(self, *, name: str) -> Union[dict, None]:
+    async def delete(self, *, name: str, current_user: User) -> Union[dict, None]:
         dog_deleted = await self.get_by_element(name=name)
         if dog_deleted:
-            model = await self.model.filter(name=name).first().delete()
+            print(current_user)
+            print(current_user["id"])
+            if dog_deleted[0]["owner_id"]==current_user["id"] or dog_deleted[0]["in_charge_id"]==current_user["id"]:
+                model = await self.model.filter(name=name).first().delete()
+            else:
+                raise HTTPException(status_code=401, detail="This user is unauthorized to deled this dog")
             return dog_deleted[0]
         else:            
             raise HTTPException(status_code=404, detail="Dog not found: There is not a dog with this name")
