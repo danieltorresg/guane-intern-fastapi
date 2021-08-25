@@ -1,6 +1,28 @@
 version: "3.8"
 
 services: 
+  doggys-app:
+    depends_on: 
+      - doggys-db
+      - celery-worker
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: doggys_service
+    container_name: doggys_service_container
+    ports:
+      - 8000:8000
+    env_file:
+      - .env
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    volumes:
+      - ./:/usr/src/app/
+    networks: 
+      doggys-network:
+        aliases: 
+          - doggys_ervice 
+
+
   doggys-db:
     build: 
       context: ./data
@@ -21,30 +43,61 @@ services:
         aliases: 
           - doggys_db
 
-  doggys-app:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+
+  celery-worker:
     depends_on: 
-      - doggys-db
-    image: doggys_service
-    container_name: doggys_service_container
-    ports:
-      - 8000:8000
+      - rabbitmq
+      - redis
+    build:
+      context: ./celery_app
+      dockerfile: Dockerfile
+    image: celery_worker
+    container_name: celery_worker_container
     env_file:
       - .env
-    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    command: celery -A task worker -Q hipri -l INFO
     volumes:
       - ./:/usr/src/app/
     networks: 
       doggys-network:
         aliases: 
-          - doggys_ervice 
+          - celery_worker 
+
+
+  redis:
+    image: bitnami/redis:5.0.4
+    environment:
+      - REDIS_PASSWORD=password123
+    ports:
+      - 6379:6379
+    expose:
+      - 6379
+    networks:
+      doggys-network:
+        aliases: 
+          - doggys_redis
+
+
+  rabbitmq:
+    image: bitnami/rabbitmq:latest
+    environment:
+      - RABBITMQ_DISK_FREE_ABSOLUTE_LIMIT=1000000000
+    ports:
+      - 15672:15672
+    networks: 
+      doggys-network:
+        aliases: 
+          - doggys_rabbit
+    volumes: 
+      - rabbitmqstats_data:/var/lib/postgresql/data
           
 
 volumes: 
   pgdata_doggys:
-    external: true     
+    external: true
+  rabbitmqstats_data:
+    external: true   
+
 
 networks:
   doggys-network:

@@ -11,20 +11,7 @@ pytest = "*"
 pytest-cov = "*"
 
 [packages]
-fastapi = "0.60.1"
-uvicorn = "*"
 requests = "*"
-tortoise-orm = "*"
-pytest = "*"
-pytest-cov = "*"
-jwt = "*"
-python-multipart = "*"
-pyjwt = "*"
-httpx = "*"
-passlib = {extras = ["bcrypt"], version = "*"}
-python-jose = {extras = ["cryptography"], version = "*"}
-asyncpg = "*"
-email-validator = "*"
 celery = "*"
 redis = "*"
 
