@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Dict, Optional, Union
 from fastapi import APIRouter
 
 from app.celery.celery import app
