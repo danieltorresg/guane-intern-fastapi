@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, TypeVar, Union, Generic
+from typing import List, TypeVar, Union, Generic
 
 from pydantic import BaseModel
 from tortoise import models

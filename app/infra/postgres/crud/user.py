@@ -1,4 +1,4 @@
-from typing import Any, Dict, Union
+from typing import Union
 from fastapi import HTTPException
 
 from app.infra.postgres.crud.base import CRUDBase

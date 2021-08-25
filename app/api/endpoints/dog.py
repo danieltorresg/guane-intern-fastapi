@@ -1,7 +1,7 @@
 from typing import List, Optional, Union
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.schemas.dog import BaseDog, UpdateDog, AdoptDog, Dog
+from app.schemas.dog import BaseDog, UpdateDog, Dog
 from app.schemas.user import User
 from app.services.dog import dog_service
 from app.api import deps
