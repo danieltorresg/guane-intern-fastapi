@@ -26,8 +26,6 @@ class CRUDDog(CRUDBase[Dog, CreateDog, UpdateDog]):
     async def delete(self, *, name: str, current_user: User) -> Union[dict, None]:
         dog_deleted = await self.get_by_element(name=name)
         if dog_deleted:
-            print(current_user)
-            print(current_user["id"])
             if dog_deleted[0]["owner_id"]==current_user["id"] or dog_deleted[0]["in_charge_id"]==current_user["id"]:
                 model = await self.model.filter(name=name).first().delete()
             else:
