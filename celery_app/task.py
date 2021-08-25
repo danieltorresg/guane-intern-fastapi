@@ -3,7 +3,6 @@ from celery_worker import app
 
 
 def task_time(secs: str):
-    print(secs)
     url = 'https://gttb.guane.dev/api/workers?task_complexity='+secs
     response = post(url)
     return response.json()

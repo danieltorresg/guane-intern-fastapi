@@ -33,7 +33,6 @@ async def login_access_token(form_data: OAuth2PasswordRequestForm = Depends()) -
             is_active = True
         )
         user = await user_service.create(new_user=user)
-        print(user)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     elif not user.is_active:
