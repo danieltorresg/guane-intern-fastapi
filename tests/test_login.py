@@ -1,10 +1,11 @@
 import pytest
+from starlette.testclient import TestClient
 
 from tests.utils import create_user, authenticate
 
 endpoint = "/api/v1/login/token"
 
-standard_user = {
+user_standard = {
         "id": 8,
         "name": "Mario",
         "last_name": "Gutierrez",
@@ -13,13 +14,14 @@ standard_user = {
         "is_active": True,
 }
 
+
 some_data_login = [
     {
         "username": "invalid@mail.com",
-        "password": standard_user["password"]
+        "password": user_standard["password"]
     },
     {
-        "username": standard_user["email"],
+        "username": user_standard["email"],
         "password": "invalid_password"
     },
     {
@@ -28,14 +30,14 @@ some_data_login = [
     }
 ]
 
-def test_login(test_app):
+def test_login(test_app: TestClient):
     url = endpoint
     
-    response_create = create_user(test_app, "/api/v1/users", standard_user)
+    response_create = create_user(test_app, "/api/v1/users", user_standard)
     assert response_create.status_code == 200
     data_login = {
-        "username": standard_user["email"],
-        "password": standard_user["password"]
+        "username": user_standard["email"],
+        "password": user_standard["password"]
     }
     response_login = authenticate(test_app, url, data_login)
     assert response_login.status_code == 200, response_login.text
@@ -47,9 +49,9 @@ def test_login(test_app):
     pytest.param(some_data_login[1], marks=[pytest.mark.dependency(name="invalid_password")]),
     pytest.param(some_data_login[2], marks=[pytest.mark.dependency(name="all_invalid")]),
 ])
-def test_login_invalid_data(test_app, data: dict):
+def test_login_invalid_data(test_app: TestClient, data: dict):
     url = endpoint
-    response_create = create_user(test_app, "/api/v1/users", standard_user)
+    response_create = create_user(test_app, "/api/v1/users", user_standard)
     assert response_create.status_code == 200
     response_login = authenticate(test_app, url, data)
     assert response_login.status_code == 400, response_login.text

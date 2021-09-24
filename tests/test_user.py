@@ -1,4 +1,5 @@
 import pytest
+from starlette.testclient import TestClient
 
 from app.core.security import verify_password
 
@@ -81,27 +82,28 @@ updates = [
 
 
 """" Es un 200 y retornar un arreglo vacio """
-def test_get_users_empty(test_app):
+def test_get_users_empty(test_app: TestClient):
     url = endpoint
     response = test_app.get(url)
     assert response.status_code == 404
     assert response.json() == {"detail": "Users not found"}
 
 
-@pytest.mark.parametrize("data", [
+@pytest.mark.parametrize("some_users", [
     pytest.param(some_users, marks=[pytest.mark.dependency(name="users_full")])
 ])
-def test_get_users_full(test_app, data: list):
+def test_get_users_full(test_app: TestClient, some_users: list):
     url = endpoint
-    for i in data:
-        response = create_user(test_app, endpoint, i)
+    for user in some_users:
+        response = create_user(test_app, endpoint, user)
         assert response.status_code >= 200 and response.status_code < 300        
     response = test_app.get(url) 
     assert response.status_code == 200, response.text
     assert isinstance(response.json(), list)
     assert isinstance(response.json()[0], dict)
 
-def test_create_user(test_app):
+
+def test_create_user(test_app: TestClient):
     url = endpoint
     data = user_standard
     response = create_user(test_app, url, data)
@@ -117,7 +119,7 @@ def test_create_user(test_app):
     pytest.param(user_same_id, marks=[pytest.mark.dependency(name="duplicate_id")]),
     pytest.param(user_same_email, marks=[pytest.mark.dependency(name="duplicate_email")]),
 ])
-def test_create_duplicate_user(test_app, duplicate_user: dict):
+def test_create_duplicate_user(test_app: TestClient, duplicate_user: dict):
     url = endpoint
     data = {
         "id": 2,
@@ -131,19 +133,21 @@ def test_create_duplicate_user(test_app, duplicate_user: dict):
     assert response_user.status_code == 200
     response_duplicate = create_user (test_app, url, duplicate_user)
     assert response_duplicate.status_code >= 400 and response_duplicate.status_code < 500, response_duplicate.text
+    assert response_duplicate.json() == {"detail": "Duplicate key: There is a user with tis data"}
 
 
-def test_get_uploadfile(test_app):
+def test_get_uploadfile(test_app: TestClient):
     url = endpoint+"/upload_file"
     response = test_app.get(url)
     assert response.status_code == 200
     assert response.json() == {"filename": "guane_file.txt"}
 
+
 @pytest.mark.parametrize("user", [
     pytest.param(user_standard, marks=[pytest.mark.dependency(name="deactivate_standard")]),
     pytest.param(user_deactivate, marks=[pytest.mark.dependency(name="deactivate_userdeactivate")]),
 ])
-def test_deactivate_user(test_app, user: dict):
+def test_deactivate_user(test_app: TestClient, user: dict):
     url = endpoint+"/deactivate"
     response_create = create_user(test_app, endpoint, user)
     assert response_create.status_code == 200, response_create.text
@@ -152,7 +156,7 @@ def test_deactivate_user(test_app, user: dict):
     assert response.json()["is_active"] == False
 
 
-def test_deactivate_inexistent_user(test_app):
+def test_deactivate_inexistent_user(test_app: TestClient):
     url = endpoint+"/deactivate"
     response = test_app.put(url, params={"id":2})
     assert response.status_code == 404, response.text
@@ -162,7 +166,7 @@ def test_deactivate_inexistent_user(test_app):
 @pytest.mark.parametrize("user", [
     pytest.param(user_standard, marks=[pytest.mark.dependency(name="get_by_id")]),
 ])
-def test_get_user_by_id(test_app, user: dict):
+def test_get_user_by_id(test_app: TestClient, user: dict):
     url = endpoint+f"/{user['id']}"
     response_create = create_user(test_app, endpoint, user)
     assert response_create.status_code == 200, response_create.text
@@ -176,7 +180,7 @@ def test_get_user_by_id(test_app, user: dict):
     assert response.json()["created_date"]
 
 
-def test_get_inexistent_user_by_id(test_app):
+def test_get_inexistent_user_by_id(test_app: TestClient):
     url = endpoint+"1"
     response = test_app.get(url)
     assert response.status_code == 404, response.text
@@ -188,7 +192,7 @@ def test_get_inexistent_user_by_id(test_app):
     pytest.param(user_standard, updates[1], marks=[pytest.mark.dependency(name="update_last_name")]),
     pytest.param(user_standard, updates[2], marks=[pytest.mark.dependency(name="update_password")]),
 ])
-def test_update_user(test_app, user: dict, field_updated: dict):
+def test_update_user(test_app: TestClient, user: dict, field_updated: dict):
     url = endpoint+f"/{user['id']}"
     response_create = create_user(test_app, endpoint, user)
     assert response_create.status_code == 200, response_create.text
@@ -202,7 +206,7 @@ def test_update_user(test_app, user: dict, field_updated: dict):
     pytest.param(updates[1], marks=[pytest.mark.dependency(name="update_last_name_inexistent")]),
     pytest.param(updates[2], marks=[pytest.mark.dependency(name="update_password_inexistent")]),
 ])
-def test_update_inexistent_user(test_app, field_updated: dict):
+def test_update_inexistent_user(test_app: TestClient, field_updated: dict):
     url = endpoint+"/1"
     response = test_app.put(url, json=field_updated)
     assert response.status_code == 404, response.text
@@ -211,7 +215,7 @@ def test_update_inexistent_user(test_app, field_updated: dict):
 @pytest.mark.parametrize("user", [
     pytest.param(user_standard, marks=[pytest.mark.dependency(name="delete_user")]),
 ])
-def test_delete_user(test_app, user: dict):
+def test_delete_user(test_app: TestClient, user: dict):
     url = endpoint+f"/{user['id']}"
     response_create = create_user(test_app, endpoint, user)
     assert response_create.status_code == 200, response_create.text
