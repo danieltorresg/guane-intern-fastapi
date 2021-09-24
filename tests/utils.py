@@ -1,10 +1,15 @@
-from fastapi.testclient import TestClient
+
 from app.core.security import verify_password
 
-from app.main import app
+def create_user(test_app, enpoint: str, data: dict):
+    response = test_app.post(enpoint,json=data)
+    return response
 
-client = TestClient(app)
 
-def create_user(enpoint: str, data: dict):
-    response = client.post(enpoint,json=data)
+def authenticate(test_app, url, data):
+    return test_app.post(url, data=data)
+
+
+def create_dog(test_app, url, headers, data_dog):
+    response = test_app.post(url, headers=headers, json=data_dog)
     return response

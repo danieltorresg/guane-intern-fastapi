@@ -1,31 +1,57 @@
-from fastapi.testclient import TestClient
+import pytest
 
-from app.main import app
-from tests.utils import create_user
-
-client = TestClient(app)
+from tests.utils import create_user, authenticate
 
 endpoint = "/api/v1/login/token"
 
-def test_login():
-    url = endpoint
-    user = {
+standard_user = {
         "id": 8,
         "name": "Mario",
         "last_name": "Gutierrez",
         "email": "mario@mail.com",
         "password": "hola",
         "is_active": True,
+}
+
+some_data_login = [
+    {
+        "username": "invalid@mail.com",
+        "password": standard_user["password"]
+    },
+    {
+        "username": standard_user["email"],
+        "password": "invalid_password"
+    },
+    {
+        "username": "invalid@mail.com",
+        "password": "invalid_password"
     }
-    response_create = create_user("/api/v1/users", user)
+]
+
+def test_login(test_app):
+    url = endpoint
+    
+    response_create = create_user(test_app, "/api/v1/users", standard_user)
     assert response_create.status_code == 200
     data_login = {
-        "username": user["email"],
-        "password": user["password"]
+        "username": standard_user["email"],
+        "password": standard_user["password"]
     }
-    response_login = authenticate(endpoint, data_login)
+    response_login = authenticate(test_app, url, data_login)
     assert response_login.status_code == 200, response_login.text
     assert response_login.json()["access_token"] == "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1hcmlvQG1haWwuY29tIiwiaWQiOjh9.e3hMlvp_ydcXffGK9_jOxSePDZGXl2hWibvgCWupCR8"
 
-def authenticate(url, data):
-    return client.post(url, data=data)
+
+@pytest.mark.parametrize("data", [
+    pytest.param(some_data_login[0], marks=[pytest.mark.dependency(name="invalid_username")]),
+    pytest.param(some_data_login[1], marks=[pytest.mark.dependency(name="invalid_password")]),
+    pytest.param(some_data_login[2], marks=[pytest.mark.dependency(name="all_invalid")]),
+])
+def test_login_invalid_data(test_app, data: dict):
+    url = endpoint
+    response_create = create_user(test_app, "/api/v1/users", standard_user)
+    assert response_create.status_code == 200
+    response_login = authenticate(test_app, url, data)
+    assert response_login.status_code == 400, response_login.text
+    assert response_login.json() == {"detail": "Incorrect email or password"}
+

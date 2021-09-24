@@ -39,8 +39,13 @@ settings: Settings = get_settings()
 #     client = TestClient(app)
 #     yield client
 
+@pytest.fixture(scope="function")
+def test_app():
+    cliente = TestClient(app)
+    return cliente
 
-@pytest.fixture(scope="session", autouse=True)
+
+@pytest.fixture(scope="function", autouse=True) # session y function
 def initialize_test(request):
     db_url = settings.DATABASE_TEST_URL
     initializer(["app.infra.postgres.models"], db_url=db_url)
