@@ -58,6 +58,13 @@ class UserService:
     async def upload_file(self) -> dict:
         response = upload_file()
         return response
+    
+    
+    async def get_filter_by_name(self, *, name: str) -> Union[dict, None]:
+        user = await self.__user_query.get_by_element(name=name)
+        if user:
+            return user
+        return None
 
 
 user_service = UserService(user_query = user)

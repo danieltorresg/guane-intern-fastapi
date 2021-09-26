@@ -20,8 +20,9 @@ router = APIRouter()
 async def get_all() -> Optional [List[User]]:
     users = await user_service.get_all()
     if users:
-        return users        
-    raise HTTPException(status_code=404, detail="Users not found")
+        return users
+    else: 
+        return []
 
 
 @router.post(
@@ -118,3 +119,20 @@ async def delete(*, id: int) -> Optional [User]:
     if user:
         return user
     return None
+
+
+@router.get(
+    "/filter/{name}",
+    response_model=Union[List[User], None],
+    status_code=200,
+    responses={
+        200: {"description": "User found"},
+        401: {"description": "User unauthorized"},
+    },
+)
+async def get_by_filter_name(*, name: str) -> Optional [User]:
+    users = await user_service.get_filter_by_name(name=name)
+    if users:
+        return users
+    else:
+        return []

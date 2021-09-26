@@ -64,8 +64,8 @@ updates = [
 def test_get_dogs_empty(test_app: TestClient):
     url = endpoint
     response = test_app.get(url)
-    assert response.status_code == 404
-    assert response.json() == {"detail": "Dogs not found"}
+    assert response.status_code == 200
+    assert response.json() == []
 
 
 @pytest.mark.parametrize("some_dogs", [
