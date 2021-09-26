@@ -10,7 +10,9 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
     async def create(self, *, obj_in: CreateUser) -> Union[dict, None]:
         user_data = obj_in.dict()
         if await self.get_by_element(email=user_data["email"]):
-            raise HTTPException(status_code=409, detail="Duplicate key: There is a user with the same email")
+            raise HTTPException(status_code=409, detail="Duplicate key: There is a user with tis data")
+        if await self.get_by_element(id=user_data["id"]):
+            raise HTTPException(status_code=409, detail="Duplicate key: There is a user with tis data")
         user = await self.model.create(**user_data)
         return user
 

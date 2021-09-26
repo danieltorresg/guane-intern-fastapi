@@ -12,7 +12,9 @@ class CRUDDog(CRUDBase[Dog, CreateDog, UpdateDog]):
     async def create(self, *, obj_in: CreateDog) -> Union[dict, None]:
         dog_data = obj_in.dict()
         if await self.get_by_element(name=dog_data["name"]):
-            raise HTTPException(status_code=409, detail="Duplicate key: There is a dog with the same name")
+            raise HTTPException(status_code=409, detail="Duplicate key: There is a dog with this data")
+        if await self.get_by_element(id=dog_data["id"]):
+            raise HTTPException(status_code=409, detail="Duplicate key: There is a dog with this data")
         if (type(dog_data["owner_id"]) == int):
             if not await user_service.get_one_by_id(id=dog_data["owner_id"]):
                 raise HTTPException(status_code=409, detail="User not found: Invalid user id")            
