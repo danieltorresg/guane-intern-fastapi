@@ -232,11 +232,11 @@ updates = [
     pytest.param(some_users, marks=[pytest.mark.dependency(name="filter_users_full")])
 ])
 def test_filter_name_full(test_app: TestClient, some_users: list):
-    url = endpoint + "/filter/Daniel"
+    url = endpoint + "/filter_by_name"
     for user in some_users:
         response_create = create_user(test_app, endpoint, user)
         assert response_create.status_code >= 200 and response_create.status_code < 300  
-    response_filter = test_app.get(url)
+    response_filter = test_app.get(url, params={"name":"Daniel"})
     assert response_filter.status_code == 200, response_filter.text
     assert isinstance(response_filter.json(), list)
     assert isinstance(response_filter.json()[0], dict)
@@ -249,11 +249,11 @@ def test_filter_name_full(test_app: TestClient, some_users: list):
     pytest.param([], marks=[pytest.mark.dependency(name="filter_users_empty")]),
 ])
 def test_filter_name_empty(test_app: TestClient, some_users: list):
-    url = endpoint + "/filter/Leidy"
+    url = endpoint + "/filter_by_name"
     for user in some_users:
         response_create = create_user(test_app, endpoint, user)
         assert response_create.status_code >= 200 and response_create.status_code < 300  
-    response_filter = test_app.get(url)
+    response_filter = test_app.get(url, params={"name":"Leidy"})
     assert response_filter.status_code == 200, response_filter.text
     assert isinstance(response_filter.json(), list)
     assert response_filter.json() == []

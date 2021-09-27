@@ -61,7 +61,7 @@ class UserService:
     
     
     async def get_filter_by_name(self, *, name: str) -> Union[dict, None]:
-        user = await self.__user_query.get_by_element(name=name)
+        user = await self.__user_query.get_filter_by_name(name=name)
         if user:
             return user
         return None
