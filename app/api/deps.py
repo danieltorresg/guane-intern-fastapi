@@ -1,10 +1,10 @@
-from app.infra.postgres.models.user import User
 from fastapi import HTTPException, Security, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError
 
 from app.core.config import Settings, get_settings
+from app.infra.postgres.models.user import User
 from app.schemas.token import TokenPayload
 from app.services.user import user_service
 

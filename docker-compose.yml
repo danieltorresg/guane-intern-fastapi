@@ -1,11 +1,11 @@
 version: "3.8"
 
-services: 
+services:
   doggys-app:
-    depends_on: 
+    depends_on:
       - doggys-db
       - celery-worker
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     image: doggys_service
@@ -17,14 +17,14 @@ services:
     command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
     volumes:
       - ./:/usr/src/app/
-    networks: 
+    networks:
       doggys-network:
-        aliases: 
-          - doggys_ervice 
+        aliases:
+          - doggys_ervice
 
 
   doggys-db:
-    build: 
+    build:
       context: ./data
       dockerfile: Dockerfile
     image: doggys_db
@@ -34,18 +34,18 @@ services:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgres"
       PGDATA: /var/lib/postgresql/data/pgdata
-    ports: 
+    ports:
       - 5432:5432
-    volumes: 
+    volumes:
       - pgdata_doggys:/var/lib/postgresql/data
-    networks: 
+    networks:
       doggys-network:
-        aliases: 
+        aliases:
           - doggys_db
 
 
   celery-worker:
-    depends_on: 
+    depends_on:
       - rabbitmq
       - redis
     build:
@@ -58,10 +58,10 @@ services:
     command: celery -A task worker -Q hipri -l INFO
     volumes:
       - ./:/usr/src/app/
-    networks: 
+    networks:
       doggys-network:
-        aliases: 
-          - celery_worker 
+        aliases:
+          - celery_worker
 
 
   redis:
@@ -74,7 +74,7 @@ services:
       - 6379
     networks:
       doggys-network:
-        aliases: 
+        aliases:
           - doggys_redis
 
 
@@ -84,19 +84,19 @@ services:
       - RABBITMQ_DISK_FREE_ABSOLUTE_LIMIT=1000000000
     ports:
       - 15672:15672
-    networks: 
+    networks:
       doggys-network:
-        aliases: 
+        aliases:
           - doggys_rabbit
-    volumes: 
+    volumes:
       - rabbitmqstats_data:/var/lib/postgresql/data
-          
 
-volumes: 
+
+volumes:
   pgdata_doggys:
     external: true
   rabbitmqstats_data:
-    external: true   
+    external: true
 
 
 networks:

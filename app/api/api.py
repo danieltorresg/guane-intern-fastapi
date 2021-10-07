@@ -1,11 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.endpoints import (
-        dog, 
-        user, 
-        login,
-        celery_task,
-        )
+from app.api.endpoints import celery_task, dog, login, user
 
 api_router = APIRouter()
 api_router.include_router(login.router, tags=["login"])

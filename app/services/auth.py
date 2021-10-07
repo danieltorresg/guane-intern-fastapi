@@ -5,14 +5,12 @@ from app.core.security import verify_password
 from app.infra.postgres.models.user import User
 from app.services.user import user_service
 
-
 settings: Settings = get_settings()
 
 
 class AuthService:
     def __init__(self):
         return
-
 
     async def authenticate_email(self, *, email: str, password: str) -> Optional[User]:
         user = await user_service.get_one_by_email(email=email)
