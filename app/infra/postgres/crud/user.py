@@ -46,5 +46,12 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
                 detail="User not found: There is not a user with this id",
             )
 
+    async def get_filter_by_name(self, *, name: str):
+        print(name)
+        users = await self.model.filter(name__icontains = name)
+        print(users)
+        return users
+
+
 
 user = CRUDUser(User)

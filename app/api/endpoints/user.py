@@ -21,7 +21,8 @@ async def get_all() -> Optional[List[User]]:
     users = await user_service.get_all()
     if users:
         return users
-    raise HTTPException(status_code=404, detail="Users not found")
+    else: 
+        return []
 
 
 @router.post(
@@ -70,6 +71,24 @@ async def deactivate(*, id: int) -> Optional[User]:
     if user:
         return user
     return None
+
+
+@router.get(
+    "/filter_by_name",
+    response_model=Union[List[User], None],
+    status_code=200,
+    responses={
+        200: {"description": "User found"},
+        401: {"description": "User unauthorized"},
+    },
+)
+async def get_by_filter_name(*, name: str) -> Optional [User]:
+    print(name)
+    users = await user_service.get_filter_by_name(name=name)
+    if users:
+        return users
+    else:
+        return []
 
 
 @router.get(

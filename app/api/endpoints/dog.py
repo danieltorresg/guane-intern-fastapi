@@ -23,7 +23,8 @@ async def get_all() -> Optional[List[Dog]]:
     dogs = await dog_service.get_all()
     if dogs:
         return dogs
-    raise HTTPException(status_code=404, detail="Dogs not found")
+    else:
+        return []
 
 
 @router.get(
