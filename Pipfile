@@ -4,14 +4,13 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-black = "*"
-flake8 = "*"
 pre-commit = "*"
 pytest = "*"
 pytest-cov = "*"
+black = "*"
 
 [packages]
-fastapi = "0.60.1"
+fastapi = "*"
 uvicorn = "*"
 requests = "*"
 tortoise-orm = "*"
@@ -19,10 +18,8 @@ pytest = "*"
 pytest-cov = "*"
 jwt = "*"
 python-multipart = "*"
-pyjwt = "*"
+PyJWT = "*"
 httpx = "*"
-passlib = {extras = ["bcrypt"], version = "*"}
-python-jose = {extras = ["cryptography"], version = "*"}
 asyncpg = "*"
 email-validator = "*"
 celery = "*"
@@ -33,3 +30,11 @@ python_version = "3.8"
 
 [pipenv]
 allow_prereleases = true
+
+[packages.passlib]
+extras = [ "bcrypt",]
+version = "*"
+
+[packages.python-jose]
+extras = [ "cryptography",]
+version = "*"

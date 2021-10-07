@@ -9,7 +9,7 @@
 
 For this app, was used a number of Technologies:
 
-* [Python 3.8] 
+* [Python 3.8]
 * [pipenv] - ```$ pip install pipenv```
 * [PostgreSQL]
 * [Docker]
@@ -75,7 +75,7 @@ INITIAL_EMAIL="init@mail.com" #email to default initial user
 INITIAL_PASSWORD="SecurePassword" #password to default initial user
 ```
 
-   
+
    [Docker]: <https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04-es>
    [Docker Compose]: <https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-compose-on-ubuntu-20-04-es>
    [Python 3.8]:<https://www.python.org/>

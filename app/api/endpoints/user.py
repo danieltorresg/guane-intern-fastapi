@@ -17,10 +17,10 @@ router = APIRouter()
         401: {"description": "User unauthorized"},
     },
 )
-async def get_all() -> Optional [List[User]]:
+async def get_all() -> Optional[List[User]]:
     users = await user_service.get_all()
     if users:
-        return users        
+        return users
     raise HTTPException(status_code=404, detail="Users not found")
 
 
@@ -33,7 +33,7 @@ async def get_all() -> Optional [List[User]]:
         401: {"description": "User unauthorized"},
     },
 )
-async def create(*, new_user: CreateUser) -> Optional [User]:
+async def create(*, new_user: CreateUser) -> Optional[User]:
     user = await user_service.create(new_user=new_user)
     if user:
         return user
@@ -49,7 +49,7 @@ async def create(*, new_user: CreateUser) -> Optional [User]:
         401: {"description": "User unauthorized"},
     },
 )
-async def upload_file() -> dict:
+async def upload_file() -> Optional[dict]:
     response = await user_service.upload_file()
     if response:
         return response
@@ -65,7 +65,7 @@ async def upload_file() -> dict:
         401: {"description": "User unauthorized"},
     },
 )
-async def deactivate(*, id: int) -> Optional [User]:
+async def deactivate(*, id: int) -> Optional[User]:
     user = await user_service.deactivate(id=id)
     if user:
         return user
@@ -81,7 +81,7 @@ async def deactivate(*, id: int) -> Optional [User]:
         401: {"description": "User unauthorized"},
     },
 )
-async def get_by_id(*, id: int) -> Optional [User]:
+async def get_by_id(*, id: int) -> Optional[User]:
     user = await user_service.get_one_by_id(id=id)
     if user:
         return user
@@ -97,7 +97,7 @@ async def get_by_id(*, id: int) -> Optional [User]:
         401: {"description": "User unauthorized"},
     },
 )
-async def update_by_id(*, id: int, update_user: UpdateUser) -> Optional [User]:
+async def update_by_id(*, id: int, update_user: UpdateUser) -> Optional[User]:
     user = await user_service.update(id=id, updated_user=update_user)
     if user:
         return user
@@ -113,7 +113,7 @@ async def update_by_id(*, id: int, update_user: UpdateUser) -> Optional [User]:
         401: {"description": "User unauthorized"},
     },
 )
-async def delete(*, id: int) -> Optional [User]:
+async def delete(*, id: int) -> Optional[User]:
     user = await user_service.delete(id=id)
     if user:
         return user

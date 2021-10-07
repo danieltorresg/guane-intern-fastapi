@@ -3,9 +3,8 @@ import logging
 from fastapi import FastAPI
 
 from app.api.api import api_router
-from app.services.db import init_db
 from app.core.config import Settings, get_settings
-
+from app.services.db import init_db
 
 log = logging.getLogger("uvicorn.info")
 
@@ -15,15 +14,16 @@ settings: Settings = get_settings()
 
 def create_application() -> FastAPI:
     application = FastAPI(
-            title=settings.WEB_APP_TITLE,
-            description=settings.WEB_APP_DESCRIPTION,
-            version=settings.WEB_APP_VERSION
-        )
+        title=settings.WEB_APP_TITLE,
+        description=settings.WEB_APP_DESCRIPTION,
+        version=settings.WEB_APP_VERSION,
+    )
     application.include_router(api_router, prefix="/api/v1")
     return application
 
 
 app = create_application()
+
 
 @app.get("/")
 def index():

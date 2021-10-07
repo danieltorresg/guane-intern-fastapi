@@ -1,11 +1,10 @@
 from celery import Celery
 
+url_broker = "amqp://user:bitnami@doggys_rabbit:5672//"
+url_backend = "redis://:password123@doggys_redis:6379/0"
 
-url_broker = 'amqp://user:bitnami@doggys_rabbit:5672//'
-url_backend = 'redis://:password123@doggys_redis:6379/0'
 
-
-app = Celery('worker', broker=url_broker, backend=url_backend)
+app = Celery("worker", broker=url_broker, backend=url_backend)
 
 
 app.conf.task_routes = {

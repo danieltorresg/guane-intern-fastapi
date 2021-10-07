@@ -9,6 +9,7 @@ class BaseDog(BaseModel):
     id: int
     owner_email: Optional[EmailStr]
 
+
 class CreateDog(BaseModel):
     id: int
     name: str
@@ -16,9 +17,11 @@ class CreateDog(BaseModel):
     in_charge_id: Optional[int]
     owner_id: Optional[int]
 
+
 class UpdateDog(BaseModel):
     name: Optional[str]
     picture: Optional[str]
+
 
 class AdoptDog(BaseModel):
     owner_id: int

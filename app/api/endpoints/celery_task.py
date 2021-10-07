@@ -1,10 +1,11 @@
 from typing import Dict, Optional, Union
+
 from fastapi import APIRouter
 
 from app.celery.celery import app
 
-
 router = APIRouter()
+
 
 @router.get(
     "",
@@ -15,8 +16,6 @@ router = APIRouter()
         401: {"description": "User unauthorized"},
     },
 )
-async def complex_task(time: str) -> Optional [Dict]:
-    app.send_task("task.complex_task", kwargs={"secs":time})
-    return {
-        "details":"Excellent"
-    }
+async def complex_task(time: str) -> Optional[Dict]:
+    app.send_task("task.complex_task", kwargs={"secs": time})
+    return {"details": "Excellent"}
