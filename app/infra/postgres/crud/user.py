@@ -48,10 +48,9 @@ class CRUDUser(CRUDBase[User, CreateUser, UpdateUser]):
 
     async def get_filter_by_name(self, *, name: str):
         print(name)
-        users = await self.model.filter(name__icontains = name)
+        users = await self.model.filter(name__icontains=name)
         print(users)
         return users
-
 
 
 user = CRUDUser(User)

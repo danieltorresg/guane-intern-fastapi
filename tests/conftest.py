@@ -1,19 +1,11 @@
 import pytest
-
-from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from tortoise import Tortoise
-from tortoise.contrib.test import initializer, finalizer
-
-from app.main import app
-from app.services.db import init_db
-
+from tortoise.contrib.test import finalizer, initializer
 
 from app.core.config import Settings, get_settings
+from app.main import app
 
 settings: Settings = get_settings()
-
-
 
 
 # async def override_init_db(request):
@@ -21,16 +13,16 @@ settings: Settings = get_settings()
 #     initializer(["app.infra.postgres.models"], db_url=db_url)
 #     request.addfinalizer(finalizer)
 
-    # await Tortoise.init(
-    #     db_url=db_url,
-    #     modules={"models": ["app.infra.postgres.models"]},
-    #     _create_db = create_db        
-    # )
-    # if create_db:
-    #     print("database created")
-    # if schemas:
-    #     await Tortoise.generate_schemas()
-    #     print("schemas generated")
+# await Tortoise.init(
+#     db_url=db_url,
+#     modules={"models": ["app.infra.postgres.models"]},
+#     _create_db = create_db
+# )
+# if create_db:
+#     print("database created")
+# if schemas:
+#     await Tortoise.generate_schemas()
+#     print("schemas generated")
 
 
 # @pytest.fixture(scope="function")
@@ -39,13 +31,14 @@ settings: Settings = get_settings()
 #     client = TestClient(app)
 #     yield client
 
+
 @pytest.fixture(scope="function")
 def test_app():
     cliente = TestClient(app)
     return cliente
 
 
-@pytest.fixture(scope="function", autouse=True) # session y function
+@pytest.fixture(scope="function", autouse=True)  # session y function
 def initialize_test(request):
     db_url = settings.DATABASE_TEST_URL
     initializer(["app.infra.postgres.models"], db_url=db_url)

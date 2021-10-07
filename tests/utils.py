@@ -1,9 +1,8 @@
-
 from starlette.testclient import TestClient
 
 
 def create_user(test_app: TestClient, enpoint: str, data: dict):
-    response = test_app.post(enpoint,json=data)
+    response = test_app.post(enpoint, json=data)
     return response
 
 

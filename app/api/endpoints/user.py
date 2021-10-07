@@ -21,7 +21,7 @@ async def get_all() -> Optional[List[User]]:
     users = await user_service.get_all()
     if users:
         return users
-    else: 
+    else:
         return []
 
 
@@ -82,7 +82,7 @@ async def deactivate(*, id: int) -> Optional[User]:
         401: {"description": "User unauthorized"},
     },
 )
-async def get_by_filter_name(*, name: str) -> Optional [User]:
+async def get_by_filter_name(*, name: str) -> Optional[User]:
     print(name)
     users = await user_service.get_filter_by_name(name=name)
     if users:
