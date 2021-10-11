@@ -1,7 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
-from app.core.security import verify_password
+from app.services.security import security
 from tests.utils import create_user
 
 endpoint = "/api/v1/users"
@@ -269,7 +269,7 @@ def test_delete_user(test_app: TestClient, user: dict):
     assert response.json()["email"] == user["email"]
     assert response.json()["is_active"] is True
     assert response.json()["created_date"]
-    assert verify_password(user["password"], response.json()["password"])
+    assert security.verify_password(user["password"], response.json()["password"])
 
 
 @pytest.mark.parametrize(

@@ -3,14 +3,14 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
 from pydantic import ValidationError
 
-from app.core.config import Settings, get_settings
-from app.infra.postgres.models.user import User
+from app.config import Settings, get_settings
 from app.schemas.token import TokenPayload
+from app.schemas.user import User
 from app.services.user import user_service
 
 settings: Settings = get_settings()
 
-reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/api/v1/login/token")
+reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/api/login/token")
 
 
 async def get_current_user(

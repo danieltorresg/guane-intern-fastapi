@@ -3,11 +3,11 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.core import security
-from app.core.config import Settings, get_settings
+from app.config import Settings, get_settings
 from app.schemas.token import Token
 from app.schemas.user import CreateUser
 from app.services.auth import auth_service
+from app.services.security import security
 from app.services.user import user_service
 
 settings: Settings = get_settings()

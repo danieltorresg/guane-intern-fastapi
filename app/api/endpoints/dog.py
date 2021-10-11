@@ -1,6 +1,8 @@
 from typing import List, Optional, Union
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.param_functions import Body
+from starlette.responses import Response
 
 from app.api import deps
 from app.schemas.dog import BaseDog, Dog, UpdateDog
@@ -37,13 +39,13 @@ async def get_all() -> Optional[List[Dog]]:
     },
 )
 async def get_is_adopted() -> Optional[Dog]:
-    dog = await dog_service.get_by_element(is_adopted=True)
+    dog = await dog_service.get_is_adopted(is_adopted=True)
     if dog:
         return dog
     raise HTTPException(status_code=404, detail="Dogs adopted not found")
 
 
-@router.put(
+@router.patch(
     "/adopt/{name}",
     response_model=Union[Dog, None],
     status_code=200,
@@ -54,10 +56,10 @@ async def get_is_adopted() -> Optional[Dog]:
 )
 async def adopt(
     *,
-    owner_email: str,
+    owner_email: str = Body(...),
     name: str,
     current_user: User = Depends(deps.get_current_active_user),
-) -> Optional[List[Dog]]:
+) -> Optional[Dog]:
     dog = await dog_service.adopt(
         owner_email=owner_email, name=name, current_user=current_user
     )
@@ -76,7 +78,7 @@ async def adopt(
     },
 )
 async def get_by_name(*, name: str) -> Optional[Dog]:
-    dog = await dog_service.get_one_by_element(name=name)
+    dog = await dog_service.get_one_by_name(name=name)
     if dog:
         return dog
     raise HTTPException(status_code=404, detail="Dog not found")
@@ -97,6 +99,7 @@ async def create_by_name(
     name: str,
     current_user: User = Depends(deps.get_current_active_user),
 ) -> Optional[Dog]:
+    print(dog_in)
     dog = await dog_service.create_by_name(
         dog=dog_in, name=name, in_charge=current_user
     )
@@ -105,7 +108,7 @@ async def create_by_name(
     return None
 
 
-@router.put(
+@router.patch(
     "/{name}",
     response_model=Union[Dog, None],
     status_code=200,
@@ -130,7 +133,7 @@ async def update_by_name(
 
 @router.delete(
     "/{name}",
-    response_model=Union[Dog, None],
+    response_class=Response,
     status_code=200,
     responses={
         200: {"description": "Dog updated"},
@@ -139,8 +142,8 @@ async def update_by_name(
 )
 async def delete_by_name(
     *, name: str, current_user: User = Depends(deps.get_current_active_user)
-) -> Optional[Dog]:
-    dog = await dog_service.delete(name=name, current_user=current_user)
-    if dog:
-        return dog
-    return None
+):
+    await dog_service.delete(name=name, current_user=current_user)
+    dog_deleted_response = Response(status_code=204)
+    print(dog_deleted_response)
+    return Response(status_code=204)

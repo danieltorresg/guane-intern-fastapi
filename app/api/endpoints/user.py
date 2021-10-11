@@ -1,6 +1,7 @@
 from typing import List, Optional, Union
 
 from fastapi import APIRouter, HTTPException
+from starlette.responses import Response
 
 from app.schemas.user import CreateUser, UpdateUser, User
 from app.services.user import user_service
@@ -57,8 +58,8 @@ async def upload_file() -> Optional[dict]:
     return None
 
 
-@router.put(
-    "/deactivate",
+@router.patch(
+    "/deactivate/{id}",
     response_model=Union[User, None],
     status_code=200,
     responses={
@@ -107,7 +108,7 @@ async def get_by_id(*, id: int) -> Optional[User]:
     raise HTTPException(status_code=404, detail="User not found")
 
 
-@router.put(
+@router.patch(
     "/{id}",
     response_model=Union[User, None],
     status_code=200,
@@ -125,15 +126,16 @@ async def update_by_id(*, id: int, update_user: UpdateUser) -> Optional[User]:
 
 @router.delete(
     "/{id}",
-    response_model=Union[User, None],
-    status_code=200,
+    response_class=Response,
+    status_code=204,
     responses={
-        200: {"description": "User found"},
+        204: {"description": "User deleted"},
         401: {"description": "User unauthorized"},
+        404: {"description": "User not found"},
     },
 )
-async def delete(*, id: int) -> Optional[User]:
-    user = await user_service.delete(id=id)
-    if user:
-        return user
-    return None
+async def delete(*, id: int):
+    await user_service.delete(id=id)
+    user_deleted_response = Response(status_code=204)
+    print(user_deleted_response)
+    return Response(status_code=204)

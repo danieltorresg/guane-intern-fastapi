@@ -1,29 +1,40 @@
-from typing import List, Optional, TypeVar, Union
+from typing import List, Optional, Union
 
 from fastapi import HTTPException
 
-from app.infra.postgres.crud.base import CRUDBase
-from app.infra.postgres.crud.dog import dog
+from app.config import Settings, get_settings
+from app.infra.httpx.client import HTTPClient, client
+from app.infra.services.responses import Responses, responses
 from app.schemas.dog import AdoptDog, BaseDog, CreateDog, Dog, UpdateDog
 from app.schemas.user import User
+from app.services.picture import PictureService, picture
 from app.services.user import user_service
-from app.utils.picture import generate_picture
 
-QueryType = TypeVar("QueryType", bound=CRUDBase)
+settings: Settings = get_settings()
 
 
 class DogService:
-    def __init__(self, dog_query: QueryType):
-        self.__dog_query = dog_query
+    def __init__(self):
+        self.__picture: PictureService = picture
+        self.__client: HTTPClient = client
+        self.__check_codes: Responses = responses
+        self.__database_url: str = f"{settings.DATABASE_SERVICE_URL}/api"
 
     async def get_all(self) -> Optional[List[Dog]]:
-        dogs = await self.__dog_query.get_all()
-        return dogs
+        database_url = f"{self.__database_url}/dogs"
+        header = {"Content-Type": "application/json"}
+        response = await self.__client.get(
+            url_service=database_url, headers=header, timeout=40
+        )
+        await self.__check_codes.check_codes(response=response)
+        response = response.json()
+        return response
 
     async def create_by_name(
         self, *, dog: BaseDog, name: str, in_charge: User
-    ) -> Union[dict, None]:
-        picture_url = generate_picture()
+    ) -> Union[Dog, None]:
+        # picture_url = "hola"
+        picture_url = await self.__picture.take_picture()
         dog_in = CreateDog(
             id=dog.id,
             name=name,
@@ -41,31 +52,73 @@ class DogService:
                 dog_in.in_charge_id = owner["id"]
         else:
             dog_in.in_charge_id = in_charge["id"]
-        new_dog_id = await self.__dog_query.create(obj_in=dog_in)
-        return new_dog_id
+        database_url = f"{self.__database_url}/dogs/{name}"
+        header = {"Content-Type": "application/json"}
+        response = await self.__client.post(
+            url_service=database_url,
+            headers=header,
+            body=dog_in.dict(exclude_unset=True),
+            timeout=40,
+        )
+        await self.__check_codes.check_codes(response=response)
+        response = response.json()
+        return Dog(**response)
 
-    async def get_one_by_element(self, **content) -> Union[dict, None]:
-        doggy = await self.__dog_query.get_by_element(**content)
-        if doggy:
-            return doggy[0]
-        return None
+    async def get_one_by_name(self, *, name: str):
+        database_url = f"{self.__database_url}/dogs/{name}"
+        header = {"Content-Type": "application/json"}
+        response = await self.__client.get(
+            url_service=database_url,
+            headers=header,
+            timeout=40,
+        )
+        await self.__check_codes.check_codes(response=response)
+        response = response.json()
+        return Dog(**response)
 
-    async def get_by_element(self, **content) -> Union[dict, None]:
-        doggy = await self.__dog_query.get_by_element(**content)
-        if doggy:
-            return doggy
+    async def get_is_adopted(self, **content) -> Union[dict, None]:
+        database_url = f"{self.__database_url}/dogs/is_adopted"
+        header = {"Content-Type": "application/json"}
+        response = await self.__client.get(
+            url_service=database_url, headers=header, timeout=40
+        )
+        await self.__check_codes.check_codes(response=response)
+        response = response.json()
+        if response:
+            return response
         return None
 
     async def update_by_name(
         self, *, updated_dog: UpdateDog, name: str, current_user: User
     ) -> Union[dict, None]:
-        if updated_dog.picture:
-            picture_url = generate_picture()
-            updated_dog.picture = picture_url
-        dog_updated = await self.__dog_query.update(
-            name=name, obj_in=updated_dog, current_user=current_user
-        )
-        return dog_updated
+        dog_in_db = (await self.get_one_by_name(name=name)).dict()
+        print(updated_dog.picture)
+        if dog_in_db:
+            if (
+                current_user["id"] == dog_in_db["in_charge_id"]
+                or current_user["id"] == dog_in_db["owner_id"]
+            ):
+                if updated_dog.picture:
+                    picture_url = await self.__picture.take_picture()
+                    updated_dog.picture = picture_url
+                database_url = f"{self.__database_url}/dogs/{name}"
+                header = {"Content-Type": "application/json"}
+                response = await self.__client.patch(
+                    url_service=database_url,
+                    headers=header,
+                    body=updated_dog.dict(exclude_unset=True),
+                    timeout=40,
+                )
+                await self.__check_codes.check_codes(response=response)
+                response = response.json()
+                return Dog(**response)
+            else:
+                raise HTTPException(status_code=401, detail="User unauthorized")
+        else:
+            raise HTTPException(
+                status_code=404,
+                detail="Dog not found: There is not a dog with this name",
+            )
 
     async def adopt(self, *, owner_email: str, name: str, current_user: User):
         owner = await user_service.get_one_by_email(email=owner_email)
@@ -73,10 +126,17 @@ class DogService:
             dog_info = AdoptDog(
                 owner_id=owner["id"], is_adopted=True, in_charge_id=owner["id"]
             )
-            dog_updated = await self.__dog_query.update(
-                name=name, obj_in=dog_info, current_user=current_user
+            database_url = f"{self.__database_url}/dogs/adopt/{name}"
+            header = {"Content-Type": "application/json"}
+            response = await self.__client.patch(
+                url_service=database_url,
+                headers=header,
+                body=dog_info.dict(exclude_unset=True),
+                timeout=40,
             )
-            return dog_updated
+            await self.__check_codes.check_codes(response=response)
+            response = response.json()
+            return Dog(**response)
         else:
             raise HTTPException(
                 status_code=404,
@@ -84,10 +144,31 @@ class DogService:
             )
 
     async def delete(self, *, name: str, current_user: User) -> Union[dict, None]:
-        dog_deleted = await self.__dog_query.delete(
-            name=name, current_user=current_user
-        )
-        return dog_deleted
+        dog_deleted = (await self.get_one_by_name(name=name)).dict()
+
+        if dog_deleted:
+            if (
+                dog_deleted["owner_id"] == current_user["id"]
+                or dog_deleted["in_charge_id"] == current_user["id"]
+            ):
+                database_url = f"{self.__database_url}/dogs/{name}"
+                header = {"Content-Type": "application/json"}
+                response = await self.__client.delete(
+                    url_service=database_url,
+                    headers=header,
+                    timeout=40,
+                )
+                return response
+            else:
+                raise HTTPException(
+                    status_code=401,
+                    detail="This user is unauthorized to delete this dog",
+                )
+        else:
+            raise HTTPException(
+                status_code=404,
+                detail="Dog not found: There is not a dog with this name",
+            )
 
 
-dog_service = DogService(dog_query=dog)
+dog_service = DogService()

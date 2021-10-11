@@ -1,8 +1,8 @@
 from typing import Optional
 
-from app.core.config import Settings, get_settings
-from app.core.security import verify_password
-from app.infra.postgres.models.user import User
+from app.config import Settings, get_settings
+from app.schemas.user import User
+from app.services.security import security
 from app.services.user import user_service
 
 settings: Settings = get_settings()
@@ -16,7 +16,7 @@ class AuthService:
         user = await user_service.get_one_by_email(email=email)
         if not user:
             return None
-        if not verify_password(password, user["password"]):
+        if not security.verify_password(password, user["password"]):
             return None
         user = User(**user)
         return user

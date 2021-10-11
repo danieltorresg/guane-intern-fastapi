@@ -24,6 +24,7 @@ asyncpg = "*"
 email-validator = "*"
 celery = "*"
 redis = "*"
+debugpy = "*"
 
 [requires]
 python_version = "3.8"
