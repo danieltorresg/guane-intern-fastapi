@@ -1,6 +1,6 @@
 from typing import List, Optional, Union
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.param_functions import Body
 from starlette.responses import Response
 
@@ -8,6 +8,7 @@ from app.api import deps
 from app.schemas.dog import BaseDog, Dog, UpdateDog
 from app.schemas.user import User
 from app.services.dog import dog_service
+from app.api.params.query import QueryPayloadDog
 
 router = APIRouter()
 
@@ -21,28 +22,17 @@ router = APIRouter()
         401: {"description": "User unauthorized"},
     },
 )
-async def get_all() -> Optional[List[Dog]]:
-    dogs = await dog_service.get_all()
+async def get_all(
+    *,
+    doggys_in: QueryPayloadDog = Depends(QueryPayloadDog.as_query),
+    skip: int = Query(0),
+    limit: int = Query(99999),
+) -> Optional[List[Dog]]:
+    dogs = await dog_service.get_all(skip=skip, limit=limit, payload=doggys_in.dict(exclude_none=True))
     if dogs:
         return dogs
     else:
         return []
-
-
-@router.get(
-    "/is_adopted",
-    response_model=Union[List[Dog], None],
-    status_code=200,
-    responses={
-        200: {"description": "Dogs founds"},
-        401: {"description": "User unauthorized"},
-    },
-)
-async def get_is_adopted() -> Optional[Dog]:
-    dog = await dog_service.get_is_adopted(is_adopted=True)
-    if dog:
-        return dog
-    raise HTTPException(status_code=404, detail="Dogs adopted not found")
 
 
 @router.patch(

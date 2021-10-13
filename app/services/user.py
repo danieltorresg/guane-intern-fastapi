@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import List, Dict, Any, Optional, Union
 
 from passlib.hash import bcrypt
 
@@ -20,11 +20,21 @@ class UserService:
         self.__check_codes: Responses = responses
         self.__database_url: str = f"{settings.DATABASE_SERVICE_URL}/api"
 
-    async def get_all(self) -> Optional[List[User]]:
+    async def get_all(
+        self,
+        payload: Optional[Dict[str, Any]],
+        skip: int = 0,
+        limit: int = 99999,
+        route: Optional[str] = "",
+    ) -> Optional[List[User]]:
+        if payload:
+            payload.update({"skip": skip, "limit": limit})
+        else:
+            payload = {"skip": skip, "limit": limit}
         database_url = f"{self.__database_url}/users"
         header = {"Content-Type": "application/json"}
         response = await self.__client.get(
-            url_service=database_url, headers=header, timeout=40
+            url_service=database_url, headers=header, timeout=40, params=payload,
         )
         await self.__check_codes.check_codes(response=response)
         response = response.json()

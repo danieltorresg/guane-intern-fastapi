@@ -1,10 +1,11 @@
-from typing import List, Optional, Union
+from typing import List, Dict, Any, Optional, Union
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query, Depends
 from starlette.responses import Response
 
 from app.schemas.user import CreateUser, UpdateUser, User
 from app.services.user import user_service
+from app.api.params.query import QueryPayloadUser
 
 router = APIRouter()
 
@@ -18,8 +19,13 @@ router = APIRouter()
         401: {"description": "User unauthorized"},
     },
 )
-async def get_all() -> Optional[List[User]]:
-    users = await user_service.get_all()
+async def get_all(
+    *,
+    users_in: QueryPayloadUser = Depends(QueryPayloadUser.as_query),
+    skip: int = Query(0),
+    limit: int = Query(99999),
+) -> Optional[List[User]]:
+    users = await user_service.get_all(skip=skip, limit=limit, payload=users_in.dict(exclude_none=True))
     if users:
         return users
     else:

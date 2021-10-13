@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import List, Dict, Any, Optional, Union
 
 from fastapi import HTTPException
 
@@ -20,11 +20,21 @@ class DogService:
         self.__check_codes: Responses = responses
         self.__database_url: str = f"{settings.DATABASE_SERVICE_URL}/api"
 
-    async def get_all(self) -> Optional[List[Dog]]:
+    async def get_all(
+        self,
+        payload: Optional[Dict[str, Any]],
+        skip: int = 0,
+        limit: int = 99999,
+        route: Optional[str] = "",
+    ) -> Optional[List[Dog]]:
+        if payload:
+            payload.update({"skip": skip, "limit": limit})
+        else:
+            payload = {"skip": skip, "limit": limit}
         database_url = f"{self.__database_url}/dogs"
         header = {"Content-Type": "application/json"}
         response = await self.__client.get(
-            url_service=database_url, headers=header, timeout=40
+            url_service=database_url, headers=header, timeout=40, params=payload
         )
         await self.__check_codes.check_codes(response=response)
         response = response.json()
@@ -65,28 +75,20 @@ class DogService:
         return Dog(**response)
 
     async def get_one_by_name(self, *, name: str):
-        database_url = f"{self.__database_url}/dogs/{name}"
+        payload = {"name": name}
+        database_url = f"{self.__database_url}/dogs"
         header = {"Content-Type": "application/json"}
         response = await self.__client.get(
-            url_service=database_url,
-            headers=header,
-            timeout=40,
+            url_service=database_url, headers=header, timeout=40, params=payload
         )
         await self.__check_codes.check_codes(response=response)
-        response = response.json()
-        return Dog(**response)
-
-    async def get_is_adopted(self, **content) -> Union[dict, None]:
-        database_url = f"{self.__database_url}/dogs/is_adopted"
-        header = {"Content-Type": "application/json"}
-        response = await self.__client.get(
-            url_service=database_url, headers=header, timeout=40
-        )
-        await self.__check_codes.check_codes(response=response)
-        response = response.json()
-        if response:
+        if response.json():
             return response
-        return None
+        else:
+            return []
+
+
+
 
     async def update_by_name(
         self, *, updated_dog: UpdateDog, name: str, current_user: User

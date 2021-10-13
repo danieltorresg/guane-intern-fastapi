@@ -30,5 +30,13 @@ class UserInDB(BaseUser):
     created_date: datetime
 
 
+class PayloadUser(BaseModel):
+    name: Optional[str]
+    last_name: Optional[str]
+    email: Optional[EmailStr]
+    is_active: Optional[bool]
+    created_date: Optional[datetime]
+
+
 class User(UserInDB):
     pass
