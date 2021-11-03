@@ -1,0 +1,28 @@
+name: push
+
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  pre-commit-and-pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+
+      - name: Pre-Commit
+        uses: pre-commit/action@v2.0.3
+
+      - name: Cache Dependencies
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-pipfile-lock
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/Pipfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
