@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from passlib.hash import bcrypt
 
@@ -34,7 +34,10 @@ class UserService:
         database_url = f"{self.__database_url}/users"
         header = {"Content-Type": "application/json"}
         response = await self.__client.get(
-            url_service=database_url, headers=header, timeout=40, params=payload,
+            url_service=database_url,
+            headers=header,
+            timeout=40,
+            params=payload,
         )
         await self.__check_codes.check_codes(response=response)
         response = response.json()

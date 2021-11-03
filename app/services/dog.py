@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from fastapi import HTTPException
 
@@ -86,9 +86,6 @@ class DogService:
             return response
         else:
             return []
-
-
-
 
     async def update_by_name(
         self, *, updated_dog: UpdateDog, name: str, current_user: User

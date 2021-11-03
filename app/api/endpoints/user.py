@@ -1,11 +1,11 @@
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Optional, Union
 
-from fastapi import APIRouter, HTTPException, Query, Depends
+from fastapi import APIRouter, Depends, HTTPException, Query
 from starlette.responses import Response
 
+from app.api.params.query import QueryPayloadUser
 from app.schemas.user import CreateUser, UpdateUser, User
 from app.services.user import user_service
-from app.api.params.query import QueryPayloadUser
 
 router = APIRouter()
 
@@ -25,7 +25,9 @@ async def get_all(
     skip: int = Query(0),
     limit: int = Query(99999),
 ) -> Optional[List[User]]:
-    users = await user_service.get_all(skip=skip, limit=limit, payload=users_in.dict(exclude_none=True))
+    users = await user_service.get_all(
+        skip=skip, limit=limit, payload=users_in.dict(exclude_none=True)
+    )
     if users:
         return users
     else:

@@ -61,7 +61,7 @@ class HTTPClient:
                     cookies=cookies,
                     timeout=timeout,
                     auth=auth,
-                    files=file,                    
+                    files=file,
                 )
                 return response
         except Exception as e:
@@ -152,5 +152,6 @@ class HTTPClient:
             print("-----------------------------")
             log.error(e)
             return None
+
 
 client: HTTPClient = HTTPClient()
