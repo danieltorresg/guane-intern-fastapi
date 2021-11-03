@@ -8,4 +8,4 @@ Run the pre-commit and tests. Save the result of the tests as HTML in an artifac
 
 ## Authors
 
-    [@DanielTorresG](https://github.com/danieltorresg)
+-  [@DanielTorresG](https://github.com/danieltorresg)
