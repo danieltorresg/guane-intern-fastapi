@@ -1,4 +1,5 @@
 import logging
+import time
 
 from fastapi import FastAPI
 
@@ -36,6 +37,10 @@ async def startup_event():
     log.info("Starting up...")
 
 
+
+
 @app.on_event("shutdown")
 async def shutdown_event():
     log.info("Shutting down...")
+
+    
