@@ -1,4 +1,5 @@
 import logging
+import time
 
 from fastapi import FastAPI
 
@@ -26,9 +27,18 @@ def create_application() -> FastAPI:
 app = create_application()
 
 
+
+
+
+
+
 @app.get("/")
 def index():
     return {"detail": "index guane app"}
+
+
+
+
 
 
 @app.on_event("startup")
